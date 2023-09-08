@@ -10,4 +10,13 @@ export class Composicion{
         this.porcentaje = porcentaje;
         this.tipoComposicion = tipoComposicion;
     }
+
+
+    public getPorcentaje(): number{
+        return this.porcentaje;
+    }
+
+    public getTipoComposicion(): TipoComposicion{
+        return this.tipoComposicion;
+    }
 }

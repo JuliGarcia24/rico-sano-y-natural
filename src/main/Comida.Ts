@@ -13,4 +13,13 @@ export class Comida{
         this.composiciones = composiciones;
         this.tipoComida = tipoComida;
     }
+
+
+    public getTipoComida(): TipoComida{
+        return this.tipoComida;
+    }
+
+    public getComposiciones(): Composicion[]{
+        return this.composiciones;
+    }
 }

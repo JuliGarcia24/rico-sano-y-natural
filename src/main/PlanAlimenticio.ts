@@ -3,8 +3,12 @@ import { Profesional } from "./Profesional";
 import { Duracion } from "./enums/Duracion.enum";
 import { Comida } from "./Comida"
 import { Objetivo } from "./Objetivo";
+import { TipoComida } from "./enums/TipoComida.enum";
+import { TipoComposicion } from "./enums/TipoComposicion.enum";
+import { Bebida } from "./enums/Bebida.enum";
+import { Colacion } from "./enums/Colacion.enum";
 
-export class PlanAlimenticio{
+export class PlanAlimenticio {
     private profesional: Profesional;
     private paciente: Paciente;
     private duracion: Duracion;
@@ -13,10 +17,10 @@ export class PlanAlimenticio{
     private medidaCinturaCliente: number;
     private comidas: Comida[];
     private objetivos: Objetivo[];
+    private colaciones: Colacion[];
+    private bebidas: Bebida[];
 
-
-
-    constructor(profesional: Profesional, paciente: Paciente, duracion: Duracion, pesoActualPaciente: number, medidaCinturaCliente: number, objetivos: Objetivo[], comidas: Comida[]){
+    constructor(profesional: Profesional, paciente: Paciente, duracion: Duracion, pesoActualPaciente: number, medidaCinturaCliente: number, objetivos: Objetivo[], comidas: Comida[]) {
         this.profesional = profesional;
         this.paciente = paciente;
         this.duracion = duracion;
@@ -24,38 +28,93 @@ export class PlanAlimenticio{
         this.pesoActualPaciente = pesoActualPaciente;
         this.medidaCinturaCliente = medidaCinturaCliente;
         this.objetivos = objetivos;
-        this.comidas = comidas
+        this.comidas = comidas;
+        this.colaciones = [];
+        this.bebidas = [];
     }
 
-    public getEdadPaciente():number{
+    public getEdadPaciente(): number {
         return this.edadPaciente;
     }
 
+    public addColacion(colacion: Colacion){
+        this.colaciones.push(colacion);
+    }
 
-    public obtenerCalificacionFinal(): string{
+    public addBebida(bebida: Bebida){
+        this.bebidas.push(bebida);
+    }
 
-        let cantObjetivos:number = this.objetivos.length;
+    public getCantColaciones(): number{
+        return this.colaciones.length;
+    }
+
+    public getCantBebidas(): number{
+        return this.bebidas.length;
+    }
+
+    public obtenerCalificacionFinal(): string {
+
+        let cantObjetivos: number = this.objetivos.length;
         let cantObjetivosCumplidos: number = 0;
         let porcentajeObjetivos: number;
-
+// Se puede hacer con filter
         this.objetivos.forEach(objetivo => {
-            if(objetivo.fueCumplido()){
+            if (objetivo.fueCumplido()) {
                 cantObjetivosCumplidos++;
             }
         });
 
         porcentajeObjetivos = (cantObjetivosCumplidos * 100) / cantObjetivos;
-        
-        if(porcentajeObjetivos = 100){
+
+        // Se Deberia utilizar un ENUM para la CALIFICACION FINAL
+        if (porcentajeObjetivos == 100) {
             return "EXCELENTE";
-        }else if(porcentajeObjetivos > 60){
+        } else if (porcentajeObjetivos > 60) {
             return "MUY BUENO";
-        }else if(porcentajeObjetivos >= 50){
+        } else if (porcentajeObjetivos >= 50) {
             return "BUENO";
-        }else{
+        } else {
             return "REGULAR";
         }
-
-
     }
+
+    public getCantComidas(): number{
+        return this.comidas.length;
+    }
+
+    public getCantComidaTipo(tipoComida: TipoComida): number{
+       return this.comidasSegunTipo(tipoComida).length;
+    }
+
+    public esFuerteEnProteinas(): boolean{
+        return this.composicionCumplePara(49, TipoComposicion.PROTEINA);
+    }
+
+    public esBienVerde(): boolean{
+        return this.composicionCumplePara(35, TipoComposicion.VEGETALES);
+    }
+
+    public comidasSegunTipo(tipoComida: TipoComida) {
+        return this.comidas.filter(tipo => tipo.getTipoComida() == tipoComida);
+    }
+
+    public composicionCumplePara(porcentajeNecesario: number, tipoComposicion: TipoComposicion): boolean{
+        let cantPorcentajeComposicion: number = 0;
+
+        let comidaAC = this.comidasSegunTipo(TipoComida.ALMUERZO_CENA);
+
+        comidaAC.forEach(comida => {
+            comida.getComposiciones().forEach(composicion =>{
+                if(composicion.getTipoComposicion() == tipoComposicion){
+                    cantPorcentajeComposicion += composicion.getPorcentaje();
+                }
+            })
+        });
+
+    return (cantPorcentajeComposicion / (comidaAC.length * 100)) * 100 >= porcentajeNecesario;
+    }
+
+
+
 }
